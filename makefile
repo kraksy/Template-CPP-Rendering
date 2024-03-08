@@ -1,7 +1,7 @@
 CC = g++
-OBJS = src/cdc.cpp
+OBJS = src/hello_image.cpp
 COMPILER_FLAGS = -w
-LINKER_FLAGS = -lSDL2
+LINKER_FLAGS = -lSDL2 -lSDL2_image
 OBJ_NAME = cdc
 
 main:
