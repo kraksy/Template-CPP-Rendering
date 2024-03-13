@@ -25,16 +25,6 @@ struct
     int fps;
 } WindowGlobals = { "SDL Window", 800, 600, 60 };
 
-enum KeyPressSurfaces
-{
-    KEY_PRESS_SURFACE_DEFAULT,
-    KEY_PRESS_SURFACE_UP,
-    KEY_PRESS_SURFACE_DOWN,
-    KEY_PRESS_SURFACE_LEFT,
-    KEY_PRESS_SURFACE_RIGHT,
-    KEY_PRESS_SURFACE_TOTAL
-};
-
 bool init()
 {
     bool success = true;
@@ -94,8 +84,6 @@ void blitImageToScreen()
     SDL_RenderCopy(Game.renderer, Game.texture, NULL, NULL);
     SDL_RenderPresent(Game.renderer);
 }
-z1
-SDL_Surface* gCurrentSurface = NULL;
 
 int main(int argc, char const* argv[])
 {
@@ -108,24 +96,8 @@ int main(int argc, char const* argv[])
         {
             SDL_Event event;
             bool running = true;
-            gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
-
             while (running)
             {
-
-                if(event.type == SDL_KEYDOWN)
-                {
-                    switch (event.key.keysym.sym)
-                    {
-                    case SDLK_UP:
-                        break;
-                    
-                    default:
-                        break;
-                    }
-                }
-
-
                 while (SDL_PollEvent(&event))
                 {
                     if (event.type == SDL_QUIT)
