@@ -1,5 +1,5 @@
 CC = g++
-OBJS = src/hello_inputs.cpp
+OBJS = src/hello_rendering.cpp
 COMPILER_FLAGS = -w
 LINKER_FLAGS = -lSDL2 -lSDL2_image
 OBJ_NAME = cdc

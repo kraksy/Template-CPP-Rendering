@@ -1,20 +1,88 @@
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
+
+#include <sstream>
 #include <iostream>
 #include <string>
+#include <stdexcept>
+
+enum INFO_LEVEL
+{
+    INFO,
+    DEBUG,
+    ERROR
+};
+
+// fix this shit man 
+// https://stackoverflow.com/questions/5093460/how-to-convert-an-enum-type-variable-to-a-string
+inline const char* ToString(INFO_LEVEL l)
+{
+    switch (l)
+    {
+        case INFO: return "info";
+        case DEBUG: return "debug";
+        case ERROR: return "error";
+        default: return "[Unknown INFO_LEVEL]";
+    }
+}
+
+template<typename... Args>
+std::string format_string(const std::string& fmt, Args... args) {
+    std::ostringstream oss;
+    size_t len = fmt.size();
+    size_t argIndex = 0;
+    for (size_t i = 0; i < len; ++i) {
+        if (fmt[i] == '{' && i + 1 < len && fmt[i + 1] != '{') {
+            size_t endPos = fmt.find('}', i + 1);
+            if (endPos == std::string::npos) {
+                throw std::invalid_argument("Invalid format string: unmatched '{'");
+            }
+            std::string argStr = fmt.substr(i + 1, endPos - i - 1);
+            try {
+                oss << args[argIndex]; // Try to output the corresponding argument
+                ++argIndex;
+            } catch (...) {
+                throw std::out_of_range("Not enough arguments provided for format string");
+            }
+            i = endPos; // Move iterator to the end of this argument
+        } else if (fmt[i] == '}' && i + 1 < len && fmt[i + 1] != '}') {
+            // Unmatched '}'
+            throw std::invalid_argument("Invalid format string: unmatched '}'");
+        } else if (fmt[i] == '{' && i + 1 < len && fmt[i + 1] == '{') {
+            // Escaped '{', skip next character
+            ++i;
+            oss << '{';
+        } else if (fmt[i] == '}' && i + 1 < len && fmt[i + 1] == '}') {
+            // Escaped '}', skip next character
+            ++i;
+            oss << '}';
+        } else {
+            oss << fmt[i]; // Output regular character
+        }
+    }
+    return oss.str();
+}
+
+void log( INFO_LEVEL level, std::string msg)
+{
+    std::printf(ToString(level), msg);
+}
 
 struct 
 {
     SDL_Renderer* renderer = NULL;
-    SDL_Surface* image;
+    SDL_Surface* image = NULL;
     SDL_Texture* texture = NULL;
 } Game;
 
 struct 
 {
-    SDL_Window* gWindow;
-    SDL_Surface* gScreenSurface;
+    SDL_Window* gWindow = NULL;
+    SDL_Surface* gScreenSurface = NULL;
+    SDL_Surface* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
+    SDL_Surface* gCurrentSurface = NULL;
 } Window;
 
 struct 
@@ -64,6 +132,18 @@ bool init()
     return success;
 }
 
+SDL_Surface* loadSurface( std::string path ) // for image loading 
+{
+    SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
+
+    if( loadedSurface == NULL )
+    {
+        log(INFO_LEVEL::INFO, "image unable to load" );
+    }
+
+    return loadedSurface;
+}
+
 bool load_all_imgdata()
 {
     bool success = true;
@@ -71,7 +151,7 @@ bool load_all_imgdata()
     Game.texture = IMG_LoadTexture(Game.renderer, "Icon34.png");
     if (Game.texture == NULL)
     {
-        printf("Failed to load image! SDL_Error: %s\n", SDL_GetError());
+        log(INFO_LEVEL::INFO, "image unable to load" );
         success = false;
     }
 
@@ -94,8 +174,6 @@ void blitImageToScreen()
     SDL_RenderCopy(Game.renderer, Game.texture, NULL, NULL);
     SDL_RenderPresent(Game.renderer);
 }
-z1
-SDL_Surface* gCurrentSurface = NULL;
 
 int main(int argc, char const* argv[])
 {
@@ -108,28 +186,26 @@ int main(int argc, char const* argv[])
         {
             SDL_Event event;
             bool running = true;
-            gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
+            Window.gCurrentSurface = Window.gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
 
             while (running)
             {
-
-                if(event.type == SDL_KEYDOWN)
-                {
-                    switch (event.key.keysym.sym)
-                    {
-                    case SDLK_UP:
-                        break;
-                    
-                    default:
-                        break;
-                    }
-                }
-
-
                 while (SDL_PollEvent(&event))
                 {
                     if (event.type == SDL_QUIT)
                         running = false;
+
+                    if(event.type == SDL_KEYDOWN)
+                    {
+                        switch (event.key.keysym.sym)
+                        {
+                            case SDLK_UP:
+                                break;
+                        
+                            default:
+                                break;
+                        }
+                    }
                 }
                 blitImageToScreen();
             }
