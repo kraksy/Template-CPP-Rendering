@@ -2,7 +2,7 @@ CC = g++
 
 OBJS = src/raylib/hello_inputs.cpp
 
-COMPILER_FLAGS = -w
+COMPILER_FLAGS = -w -g
 
 LINKER_FLAGS = -lGL
 SDL_LINKER_FLAGS = -lSDL2 -lSDL2_image
@@ -17,4 +17,4 @@ ray:
 sdl:
 	$(CC) $(OBJS) $(COMPILER_FLAGS) $(SDL_LINKER_FLAGS) -o $(OBJ_NAME)
 clean:
-	rm cdc
+	rm main
