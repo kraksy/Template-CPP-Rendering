@@ -1,6 +1,6 @@
 CC = g++
 
-OBJ = src/raylib/hello_inputs.cpp
+OBJ = src/raylib/game_ray.cpp
 OBJS = $(wildcard *.cpp)
 
 COMPILER_FLAGS = -w -g
