@@ -9,42 +9,56 @@
 */
 
 struct 
-{
-    int Width, Height;
+{   int Width, Height;
     const char *Title;
     int TargetFps;
     Camera2D Camera = { 0 };
 }Window{1200, 1200, "raylib mania", 60};
 
 struct 
-{
-    KeyboardKey left;
+{   KeyboardKey left;
     KeyboardKey up;
     KeyboardKey down;
     KeyboardKey right;
 }Inputs{KEY_D, KEY_F, KEY_J, KEY_K};
 
 struct
-{
-    Vector2 Pos;
+{   Vector2 Pos;
 }Cursor;
 
-static Vector2 CameraBase = { 0, 0 };
+enum
+{   Game_Menu,
+    Game_Settings,
+    Game_Play
+}Game_State;
+
+void createWindow()
+{
+    InitWindow(Window.Width, Window.Height, Window.Title);
+    SetTargetFPS(Window.TargetFps);
+}
 
 void loadData()
 {
-
-    
-
-
+    static Vector2 CameraBase = { 0, 0 };
+    Window.Camera.target = CameraBase;
+    int score = 0;
+    int miss = 0;
+    Window.Width = 800;
+    Window.Height = 450;
+    Window.TargetFps = 60;
+    Window.Title = "ray mania!";
+    Window.Camera.offset = { (float)Window.Width/2, (float)Window.Height/2 };
+    Window.Camera.rotation = 0.0f;
+    Window.Camera.target = Cursor.Pos;
+    Window.Camera.zoom = 1.f;
 }
+
+
 
 void StartMenu()
 {
-    // --------- init ------------
-    Window.Camera.target = CameraBase; // set camera back to zero so its back in the place when going from game to menu 
-
-    // ---------- loop -----------
+    loadData();
 
     BeginDrawing();
         BeginMode2D(Window.Camera);
@@ -57,9 +71,7 @@ void StartMenu()
 
 void StartSettings()
 {
-    // --------- init ------------
-    Window.Camera.target = CameraBase;
-
+    loadData();
 
     BeginDrawing();
         BeginMode2D(Window.Camera);
@@ -72,27 +84,10 @@ void StartSettings()
 
 void StartGame()
 {
-    // --------- init ------------
-    int score = 0;
-    int miss = 0;
-
-    Window.Width = 800;
-    Window.Height = 450;
-    Window.TargetFps = 60;
-    Window.Title = "ray mania!";
-
-    InitWindow(Window.Width, Window.Height, Window.Title);
-    SetTargetFPS(Window.TargetFps);
+    loadData();
     
-    Window.Camera.offset = { (float)Window.Width/2, (float)Window.Height/2 };
-    Window.Camera.rotation = 0.0f;
-    Window.Camera.target = Cursor.Pos;
-    Window.Camera.zoom = 1.f;
-
     Vector2 StartLine = {3, 0};
     Vector2 EndLine = {3, 200};
-
-    // ---------- loop ------------
 
     while (!WindowShouldClose())
     {
@@ -114,9 +109,8 @@ void StartGame()
 
 int main()
 {
+    createWindow();
+    loadData();
     StartGame();
-
-    CloseWindow();
-
     return 0;
 }
