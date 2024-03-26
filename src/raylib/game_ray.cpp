@@ -8,29 +8,37 @@
     sdjk 
 */
 
+struct // declared so in settings I can directly assign the keys to these. 
+{  
+    KeyboardKey leave; // just here to hold place for 'esc' key. 
+    KeyboardKey reset;
+    KeyboardKey menu; 
+
+    KeyboardKey left;
+    KeyboardKey up;
+    KeyboardKey down;
+    KeyboardKey right;
+}Inputs;
+
+struct
+{   Vector2 Pos;
+    Rectangle Rec; // for input checking 
+}Cursor;
+
+typedef enum
+{   Game_Intro,     
+    Game_Menu,
+    Game_Settings,
+    Game_Play
+}Game_State;
+
+
 struct 
 {   int Width, Height;
     const char *Title;
     int TargetFps;
-    Camera2D Camera = { 0 };
-}Window{1200, 1200, "raylib mania", 60};
-
-struct 
-{   KeyboardKey left;
-    KeyboardKey up;
-    KeyboardKey down;
-    KeyboardKey right;
-}Inputs{KEY_D, KEY_F, KEY_J, KEY_K};
-
-struct
-{   Vector2 Pos;
-}Cursor;
-
-enum
-{   Game_Menu,
-    Game_Settings,
-    Game_Play
-}Game_State;
+    Game_State state;
+}Window;
 
 void createWindow()
 {
@@ -40,70 +48,65 @@ void createWindow()
 
 void loadData()
 {
-    static Vector2 CameraBase = { 0, 0 };
-    Window.Camera.target = CameraBase;
     int score = 0;
     int miss = 0;
-    Window.Width = 800;
-    Window.Height = 450;
+    Window.Width = 500;
+    Window.Height = 500;
     Window.TargetFps = 60;
     Window.Title = "ray mania!";
-    Window.Camera.offset = { (float)Window.Width/2, (float)Window.Height/2 };
-    Window.Camera.rotation = 0.0f;
-    Window.Camera.target = Cursor.Pos;
-    Window.Camera.zoom = 1.f;
+    
+    Inputs.leave = KEY_ESCAPE; 
+    Inputs.menu = KEY_TAB;
+    Inputs.reset = KEY_LEFT_ALT;
+
+    Inputs.up = KEY_J;
+    Inputs.down = KEY_F;
+    Inputs.left = KEY_D; 
+    Inputs.right = KEY_K;
 }
-
-
-
-void StartMenu()
-{
-    loadData();
-
-    BeginDrawing();
-        BeginMode2D(Window.Camera);
-        ClearBackground(RAYWHITE);
-
-        DrawText("", 10, 20, 20, BLACK);
-    EndDrawing();
-
-}   
-
-void StartSettings()
-{
-    loadData();
-
-    BeginDrawing();
-        BeginMode2D(Window.Camera);
-
-        ClearBackground(RAYWHITE);
-        DrawText("SETTINGS", 10, 20, 20, BLACK);
-    EndDrawing();
-
-}
-
+ 
 void StartGame()
 {
-    loadData();
-    
-    Vector2 StartLine = {3, 0};
-    Vector2 EndLine = {3, 200};
+    int fpsCounter = 0;
+    Vector2 mousePos = GetMousePosition();
+    Window.state = Game_Intro;
 
     while (!WindowShouldClose())
     {
-        Cursor.Pos = GetMousePosition();
+        switch (Window.state) {
+            case Game_Intro:
+                {   fpsCounter++;
+                    if(fpsCounter > 180)
+                        Window.state = Game_Menu;
+                }break;
+            case Game_Menu:
+                {}break;
+                // check two rect interactions 
+            case Game_Play:
+                {}break;
+                // the game
+            case Game_Settings:
+                {}break;
+                // check rect interactions
+        }   
+        
         BeginDrawing();
-            BeginMode2D(Window.Camera);
-
-            ClearBackground(RAYWHITE);
-            DrawText("hello inputs", 10, 20, 20, BLACK);
-
-            for (size_t i = 0; i < 5; i++)
+            switch (Window.state)
             {
-               DrawLineEx({StartLine.x*i, StartLine.y*i}, {EndLine.x*i, EndLine.y*i}, 1, BLACK);
-            }
-
-        EndDrawing();        
+                case Game_Intro:
+                    DrawFPS(10, 10);
+                    DrawText("intro", 20, 20, 3, BLACK);
+                case Game_Menu:
+                    DrawFPS(10,10);
+                    DrawRectangleV(mousePos, {10, 10}, RED); 
+                case Game_Settings:
+                    DrawFPS(10,10);
+                    DrawRectangleV(mousePos, {10, 10}, RED); 
+                case Game_Play:
+                    DrawFPS(10,10);
+            }   
+        EndDrawing();
+               
     }
 }
 
